@@ -1,0 +1,97 @@
+#%RAML 0.8
+title: Banco API
+mediaType: application/json
+/clientes:
+  description: Listar Clientes do Banco
+  get: 
+    responses: 
+      200:
+        body:
+          example: |
+            {
+              "clientes" [
+                "nome": "Charles Bukowski",
+                "cpf": "12345678900",
+                "endereco": "Rua dos Bohemios, 123, Centro, São Paulo, SP"
+              ]
+            }
+  post: 
+    description: Criar um novo Cliente do Banco
+    body: 
+      example: | 
+        {
+          "nome": "Charles Bukowski",
+          "cpf": "12345678900",
+          "endereco": "Rua dos Bohemios, 123, Centro, São Paulo, SP"
+        }
+    responses: 
+      201: 
+        body: 
+          example: |
+            {
+              id: 1234567890
+            }
+  /{id}:
+    description: "Id do Cliente"
+    get:
+      description: "Retorna os dados do Cliente por ID"
+      responses: 
+        200:
+          body: 
+            example: |
+              {
+                "nome": "Charles Bukowski",
+                "cpf": "12345678900",
+                "endereco": "Rua dos Bohemios, 123, Centro, São Paulo, SP"
+              }
+    /contas: 
+      description: Operações para lista, incluir e atualizar a Conta de um Cliente
+      uriParameters: 
+        id: 
+          description: id do Cliente
+          type: number
+          example: 123456789
+      get: 
+        description: Listar todas as Contas de um determinado Cliente
+        responses: 
+          200: 
+            body: 
+              example: |
+                {
+                  "agencia": "1234",
+                  "numedoConta": "12345678",
+                  "tipo": "Conta Corrente",
+                  "saldo": 123,45
+                }
+      post: 
+        description: Criar uma nova conta para um determinado Cliente
+        body: 
+          example: | 
+            {
+              "agencia": "1234",
+              "numedoConta": "12345678",
+              "tipo": "Conta Corrente"
+            }
+        responses: 
+          201: 
+            body: 
+              example: |
+                {
+                  idConta: 1234567890
+                } 
+      patch: 
+        description: Criar uma nova conta para um determinado Cliente
+        body: 
+          example: | 
+            {
+              "agencia": "1234",
+              "numedoConta": "12345678",
+              "tipo": "Conta Corrente"
+            }
+        responses: 
+          200: 
+            body: 
+              example: |
+                {
+                  idConta: 1234567890
+                } 

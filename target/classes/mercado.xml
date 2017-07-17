@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+    <apikit:config name="mercado-config" raml="mercado.raml" consoleEnabled="true" consolePath="console" keepRamlBaseUri="false" doc:name="Router1"/>
+    <apikit:config name="Router1" raml="mercado.raml" consoleEnabled="true" consolePath="console" keepRamlBaseUri="false" doc:name="Router1">
+        <apikit:flow-mapping resource="/mercado/pesquisa" action="get" flow-ref="get:/mercado/pesquisa:mercado-config"/>
+        <apikit:flow-mapping resource="/mercado/preco" action="get" flow-ref="get:/mercado/preco:mercado-config"/>
+    </apikit:config>
+    <flow name="mercado-main">
+        <http:listener config-ref="cliente-httpListenerConfig" path="/api/bancos/*" doc:name="HTTP"/>
+        <apikit:router config-ref="Router1" doc:name="APIkit Router"/>
+    </flow>
+    <flow name="mercado-console">
+        <http:listener config-ref="cliente-httpListenerConfig" path="/consolemercado/*" doc:name="HTTP"/>
+        <apikit:console config-ref="mercado-config" doc:name="APIkit Console"/>
+    </flow>
+    <flow name="get:/mercado/pesquisa:mercado-config">
+        <set-payload value="{
+                  &quot;codigo&quot;: &quot;GOOGL&quot;,
+                  &quot;empresa&quot;: &quot;Google S/A&quot;,
+                  &quot;stockvalue&quot;: &quot;456,00&quot;
+                }" doc:name="Set Payload"/>
+    </flow>
+    <flow name="get:/mercado/preco:mercado-config">
+        <set-payload value="{
+                  &quot;codigo&quot;: &quot;GOOGL&quot;,
+                  &quot;empresa&quot;: &quot;Google S/A&quot;,
+                  &quot;stockvalue&quot;: &quot;456,00&quot;
+                }" doc:name="Set Payload"/>
+    </flow>
+</mule>

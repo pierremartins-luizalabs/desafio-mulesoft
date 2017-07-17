@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/apikit http://www.mulesoft.org/schema/mule/apikit/current/mule-apikit.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+    <http:listener-config name="cliente-httpListenerConfig" host="0.0.0.0" port="8081" doc:name="HTTP Listener Configuration"/>
+    <apikit:config name="cliente-config" raml="cliente.raml" consoleEnabled="false" doc:name="Router"/>
+    <apikit:config name="Router" raml="cliente.raml" consoleEnabled="true" consolePath="console" keepRamlBaseUri="false" doc:name="Router">
+        <apikit:flow-mapping resource="/clientes" action="get" flow-ref="get:/clientes:cliente-config"/>
+        <apikit:flow-mapping resource="/clientes" action="post" content-type="application/json" flow-ref="post:/clientes:cliente-config"/>
+        <apikit:flow-mapping resource="/clientes/{id}" action="get" flow-ref="get:/clientes/{id}:cliente-config"/>
+        <apikit:flow-mapping resource="/clientes/{id}/contas" action="get" flow-ref="get:/clientes/{id}/contas:cliente-config"/>
+        <apikit:flow-mapping resource="/clientes/{id}/contas" action="post" content-type="application/json" flow-ref="post:/clientes/{id}/contas:cliente-config"/>
+        <apikit:flow-mapping resource="/clientes/{id}/contas" action="patch" content-type="application/json" flow-ref="patch:/clientes/{id}/contas:cliente-config"/>
+    </apikit:config>
+    <flow name="cliente-main">
+        <http:listener config-ref="cliente-httpListenerConfig" path="/api/banco/*" doc:name="HTTP"/>
+        <apikit:router config-ref="Router" doc:name="APIkit Router"/>
+        <exception-strategy ref="cliente-apiKitGlobalExceptionMapping" doc:name="Reference Exception Strategy"/>
+    </flow>
+    <flow name="cliente-console">
+        <http:listener config-ref="cliente-httpListenerConfig" path="/console/*" doc:name="HTTP"/>
+        <apikit:console config-ref="cliente-config" doc:name="APIkit Console"/>
+    </flow>
+    <flow name="patch:/clientes/{id}/contas:cliente-config">
+        <set-payload value="{&#xA;  idConta: 1234567890&#xA;}" doc:name="Set Payload"/>
+    </flow>
+    <flow name="get:/clientes:cliente-config">
+        <set-payload value="{&#xA;  &quot;clientes&quot; [&#xA;    &quot;nome&quot;: &quot;Charles Bukowski&quot;,&#xA;    &quot;cpf&quot;: &quot;12345678900&quot;,&#xA;    &quot;endereco&quot;: &quot;Rua dos Bohemios, 123, Centro, São Paulo, SP&quot;&#xA;  ]&#xA;}" doc:name="Set Payload"/>
+    </flow>
+    <flow name="get:/clientes/{id}:cliente-config">
+        <set-payload value="{&#xA;  &quot;nome&quot;: &quot;Charles Bukowski&quot;,&#xA;  &quot;cpf&quot;: &quot;12345678900&quot;,&#xA;  &quot;endereco&quot;: &quot;Rua dos Bohemios, 123, Centro, São Paulo, SP&quot;&#xA;}" doc:name="Set Payload"/>
+    </flow>
+    <flow name="get:/clientes/{id}/contas:cliente-config">
+        <set-payload value="{&#xA;  &quot;agencia&quot;: &quot;1234&quot;,&#xA;  &quot;numedoConta&quot;: &quot;12345678&quot;,&#xA;  &quot;tipo&quot;: &quot;Conta Corrente&quot;,&#xA;  &quot;saldo&quot;: 123,45&#xA;}" doc:name="Set Payload"/>
+    </flow>
+    <flow name="post:/clientes:cliente-config">
+        <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+        <set-payload value="{&#xA;  id: 1234567890&#xA;}" doc:name="Set Payload"/>
+    </flow>
+    <flow name="post:/clientes/{id}/contas:cliente-config">
+        <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+        <set-payload value="{&#xA;  idConta: 1234567890&#xA;}" doc:name="Set Payload"/>
+    </flow>
+    <apikit:mapping-exception-strategy name="cliente-apiKitGlobalExceptionMapping">
+        <apikit:mapping statusCode="404">
+            <apikit:exception value="org.mule.module.apikit.exception.NotFoundException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Resource not found&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="405">
+            <apikit:exception value="org.mule.module.apikit.exception.MethodNotAllowedException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Method not allowed&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="415">
+            <apikit:exception value="org.mule.module.apikit.exception.UnsupportedMediaTypeException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Unsupported media type&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="406">
+            <apikit:exception value="org.mule.module.apikit.exception.NotAcceptableException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Not acceptable&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+        <apikit:mapping statusCode="400">
+            <apikit:exception value="org.mule.module.apikit.exception.BadRequestException" />
+            <set-property propertyName="Content-Type" value="application/json" doc:name="Property"/>
+            <set-payload value="{ &quot;message&quot;: &quot;Bad request&quot; }" doc:name="Set Payload"/>
+        </apikit:mapping>
+    </apikit:mapping-exception-strategy>
+</mule>

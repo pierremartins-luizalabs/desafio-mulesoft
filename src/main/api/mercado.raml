@@ -1,0 +1,36 @@
+#%RAML 0.8
+title: Mercado API
+mediaType: application/json
+/mercado: 
+  /pesquisa: 
+    get: 
+      description: Busca de Empresas listadas no mercado de ações (EUA)
+      queryParameters: 
+        codigo: 
+          example: "GOOGL"
+          type: string
+      responses: 
+        200:
+          body: 
+              example: |
+                {
+                  "codigo": "GOOGL",
+                  "empresa": "Google S/A",
+                  "stockvalue": "456,00"
+                }
+  /preco: 
+    get: 
+      description: Busca de Empresas listadas no mercado de ações (EUA)
+      queryParameters: 
+        codigo: 
+          example: "GOOGL"
+          type: string
+      responses: 
+        200:
+          body: 
+              example: |
+                {
+                  "codigo": "GOOGL",
+                  "empresa": "Google S/A",
+                  "stockvalue": "456,00"
+                }
